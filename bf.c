@@ -81,9 +81,11 @@ char *read_file(char *filename) {
 
 /* Memory */
 
+typedef unsigned char byte;
+
 typedef struct {
   size_t size;
-  char *buffer;
+  byte *buffer;
 } memory;
 
 void mem_init(memory *mem) {
@@ -103,7 +105,7 @@ void mem_expand(memory *mem, size_t size) {
   new_size = 3*mem->size / 2;
   if (new_size < size) new_size = size;
 
-  mem->buffer = (char *) realloc(mem->buffer, new_size);
+  mem->buffer = (byte *) realloc(mem->buffer, new_size);
   if (mem->buffer == NULL) {
     fprintf(stderr, "Error: not enough memory\n");
     exit(1);
@@ -112,12 +114,12 @@ void mem_expand(memory *mem, size_t size) {
   mem->size = new_size;
 }
 
-char *mem_idx(memory *mem, size_t idx) {
+byte *mem_idx(memory *mem, size_t idx) {
   mem_expand(mem, idx+1);
   return mem->buffer + idx;
 }
 
-char mem_get(memory *mem, size_t idx) {
+byte mem_get(memory *mem, size_t idx) {
   if (idx >= mem->size) return 0;
   return mem->buffer[idx];
 }
@@ -240,7 +242,7 @@ int cxt_step(context *cxt) {
         c = feof(stdin) ? EOF : getchar();
       else
         c = *cxt->input == '\0' ? EOF : *cxt->input++;
-      *mem_idx(&cxt->mem, cxt->dp) = c == EOF ? 0 : (char) c;
+      *mem_idx(&cxt->mem, cxt->dp) = c == EOF ? 0 : (byte) c;
       break;
     case '[':
       if (*mem_idx(&cxt->mem, cxt->dp) == 0) {
